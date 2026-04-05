@@ -40,7 +40,7 @@ export interface SavingsGoal {
   linkedStreak?: boolean
 }
 
-export interface PushSubscription {
+export interface AppPushSubscription {
   endpoint: string
   keys: { p256dh: string; auth: string }
   timezone: string
