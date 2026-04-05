@@ -48,15 +48,17 @@ Levl.up is a mobile-first PWA that combats procrastination through streak-based 
 
 ### Task
 ```ts
+type StreakContribution = 'none' | 'partial' | 'full'
+
 Task {
   id: string
   title: string
-  startDate: Date         // when the task was created/started
-  dueDate: Date           // deadline
-  completedDate?: Date    // when it was marked done (duration = completedDate - startDate)
+  startDate: Date              // when the task was created/started
+  dueDate: Date                // deadline
+  completedDate?: Date         // when it was marked done (duration = completedDate - startDate)
   category: 'productivity' | 'finance'
   completed: boolean
-  streakContributes: boolean
+  streakContribution: StreakContribution  // how much this task counts toward the streak
 }
 ```
 
@@ -164,26 +166,33 @@ Routes:
 - DELETE /unsubscribe   remove a push subscription
 ```
 
-### Project Structure
+### Project Structure (Monorepo — npm workspaces)
 ```
 levl-up/
-├── frontend/
-│   ├── src/
-│   │   ├── features/
-│   │   │   ├── dashboard/     Streak HUD, daily summary
-│   │   │   ├── tasks/         Task list, add/complete
-│   │   │   ├── finance/       Budgets, savings goals
-│   │   │   └── settings/      Notification prefs
-│   │   ├── store/             IndexedDB models
-│   │   └── sw.ts              Service worker (push handler)
-│   └── public/
-│       └── manifest.json      PWA manifest
-│
-└── backend/
-    └── src/
-        ├── routes/
-        │   └── push.ts        Subscribe/unsubscribe endpoints
-        └── scheduler.ts       Cron jobs per timezone
+├── package.json              # Workspace root
+├── tsconfig.base.json        # Shared TS config
+└── packages/
+    ├── shared/               # Shared TypeScript types
+    │   └── src/
+    │       └── types.ts      # Task, Budget, SavingsGoal, PushSubscription...
+    │
+    ├── frontend/             # React PWA
+    │   ├── src/
+    │   │   ├── features/
+    │   │   │   ├── dashboard/     Streak HUD, daily summary
+    │   │   │   ├── tasks/         Task list, add/complete
+    │   │   │   ├── finance/       Budgets, savings goals
+    │   │   │   └── settings/      Notification prefs
+    │   │   ├── store/             IndexedDB models
+    │   │   └── sw.ts              Service worker (push handler)
+    │   └── public/
+    │       └── manifest.json      PWA manifest
+    │
+    └── backend/              # Hono + Node.js
+        └── src/
+            ├── routes/
+            │   └── push.ts        Subscribe/unsubscribe endpoints
+            └── scheduler.ts       Cron jobs per timezone
 ```
 
 ### Deployment
