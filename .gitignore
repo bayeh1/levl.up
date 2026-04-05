@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.superpowers/
+*.local
+packages/backend/.env
+packages/backend/data/
+packages/frontend/.env
