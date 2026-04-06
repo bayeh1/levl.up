@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import type { AppPushSubscription } from '@levl-up/shared'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const DEFAULT_FILE = resolve(__dirname, '../../data/subscriptions.json')
+const DEFAULT_FILE = resolve(__dirname, '../data/subscriptions.json')
 
 export async function getSubscriptions(file = DEFAULT_FILE): Promise<AppPushSubscription[]> {
   if (!existsSync(file)) return []
