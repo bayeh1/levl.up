@@ -50,12 +50,14 @@ export function usePushSubscription() {
       const reg = await navigator.serviceWorker.ready
       const sub = await reg.pushManager.getSubscription()
       if (sub) {
+        const endpoint = sub.endpoint
         await sub.unsubscribe()
-        await fetch(`${BACKEND_URL}/push/unsubscribe`, {
+        const response = await fetch(`${BACKEND_URL}/push/unsubscribe`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: sub.endpoint })
+          body: JSON.stringify({ endpoint })
         })
+        if (!response.ok) throw new Error(`Server error: ${response.status}`)
       }
       setSubscribed(false)
     } catch (e) {
