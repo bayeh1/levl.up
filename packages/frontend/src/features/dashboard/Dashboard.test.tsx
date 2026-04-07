@@ -36,6 +36,6 @@ describe('Dashboard', () => {
 
   it('renders 0% savings progress when no savings goals', async () => {
     render(<MemoryRouter><Dashboard /></MemoryRouter>)
-    expect(await screen.findByText('0%')).toBeInTheDocument()
+    expect(await screen.findByTestId('savings-progress')).toHaveTextContent('0%')
   })
 })

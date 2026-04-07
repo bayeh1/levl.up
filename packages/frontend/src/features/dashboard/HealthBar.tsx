@@ -9,7 +9,14 @@ export function HealthBar({ health }: Props) {
         <span>Streak health</span>
         <span>{pct}%</span>
       </div>
-      <div className="bg-[#21262d] rounded-full h-2">
+      <div
+        role="progressbar"
+        aria-label="Streak health"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="bg-[#21262d] rounded-full h-2"
+      >
         <div
           className="h-2 rounded-full transition-all duration-1000"
           style={{ width: `${pct}%`, backgroundColor: color }}
