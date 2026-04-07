@@ -16,6 +16,10 @@ export function usePushSubscription() {
   const [error, setError] = useState<string | null>(null)
 
   async function subscribe(timezone: string, dailyReminderTime: string, streakWarningTime: string) {
+    if (!VAPID_PUBLIC_KEY) {
+      setError('Push notifications not configured (missing VAPID key)')
+      return
+    }
     setLoading(true)
     setError(null)
     try {
@@ -25,17 +29,12 @@ export function usePushSubscription() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       })
       const json = sub.toJSON()
-      await fetch(`${BACKEND_URL}/push/subscribe`, {
+      const response = await fetch(`${BACKEND_URL}/push/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          endpoint: json.endpoint,
-          keys: json.keys,
-          timezone,
-          dailyReminderTime,
-          streakWarningTime
-        })
+        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, timezone, dailyReminderTime, streakWarningTime })
       })
+      if (!response.ok) throw new Error(`Server error: ${response.status}`)
       setSubscribed(true)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to subscribe to notifications')
@@ -46,18 +45,21 @@ export function usePushSubscription() {
 
   async function unsubscribe() {
     setLoading(true)
+    setError(null)
     try {
       const reg = await navigator.serviceWorker.ready
       const sub = await reg.pushManager.getSubscription()
       if (sub) {
+        await sub.unsubscribe()
         await fetch(`${BACKEND_URL}/push/unsubscribe`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ endpoint: sub.endpoint })
         })
-        await sub.unsubscribe()
       }
       setSubscribed(false)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to disable notifications')
     } finally {
       setLoading(false)
     }

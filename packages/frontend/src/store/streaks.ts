@@ -38,6 +38,18 @@ export async function getAllStreaks(): Promise<Streak[]> {
   return db.getAll('streaks')
 }
 
+export async function resetStreak(): Promise<void> {
+  const db = await getDB()
+  const key = todayKey()
+  const existing = await db.get('streaks', key)
+  await db.put('streaks', {
+    date: key,
+    completedCount: existing?.completedCount ?? 0,
+    totalCount: existing?.totalCount ?? 1,
+    broken: true
+  })
+}
+
 export async function getConsecutiveStreak(): Promise<number> {
   const streaks = await getAllStreaks()
   const sorted = streaks.sort((a, b) => b.date.localeCompare(a.date))
