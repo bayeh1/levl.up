@@ -19,6 +19,10 @@ vi.mock('../../store/tasks', () => ({
   ])
 }))
 
+vi.mock('../../store/finance', () => ({
+  getSavingsGoals: vi.fn().mockResolvedValue([])
+}))
+
 describe('Dashboard', () => {
   it('renders streak count', async () => {
     render(<MemoryRouter><Dashboard /></MemoryRouter>)
@@ -28,5 +32,10 @@ describe('Dashboard', () => {
   it('renders next task title', async () => {
     render(<MemoryRouter><Dashboard /></MemoryRouter>)
     expect(await screen.findByText('Morning workout')).toBeInTheDocument()
+  })
+
+  it('renders 0% savings progress when no savings goals', async () => {
+    render(<MemoryRouter><Dashboard /></MemoryRouter>)
+    expect(await screen.findByText('0%')).toBeInTheDocument()
   })
 })
