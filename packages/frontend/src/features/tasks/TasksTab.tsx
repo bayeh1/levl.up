@@ -27,9 +27,9 @@ export function TasksTab() {
   }
 
   const todayStr = new Date().toDateString()
-  const todayTasks = tasks.filter((t) => new Date(t.dueDate).toDateString() === todayStr)
+  const todayTasks = tasks.filter((t) => !t.completed && new Date(t.dueDate).toDateString() === todayStr)
   const overdueTasks = tasks.filter((t) => !t.completed && new Date(t.dueDate) < new Date() && new Date(t.dueDate).toDateString() !== todayStr)
-  const upcomingTasks = tasks.filter((t) => new Date(t.dueDate) > new Date() && new Date(t.dueDate).toDateString() !== todayStr)
+  const upcomingTasks = tasks.filter((t) => !t.completed && new Date(t.dueDate) > new Date() && new Date(t.dueDate).toDateString() !== todayStr)
 
   return (
     <div className="p-4 space-y-4">

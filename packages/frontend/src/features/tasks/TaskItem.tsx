@@ -1,5 +1,14 @@
 import type { Task } from '@levl-up/shared'
 
+function formatDuration(ms: number): string {
+  const minutes = Math.floor(ms / 60000)
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ${minutes % 60}m`
+  const days = Math.floor(hours / 24)
+  return `${days}d ${hours % 24}h`
+}
+
 interface Props {
   task: Task
   onComplete: (id: string) => void
@@ -13,6 +22,11 @@ export function TaskItem({ task, onComplete, onDelete }: Props) {
         <div className={`font-medium truncate ${task.completed ? 'line-through text-[#8b949e]' : 'text-[#e6edf3]'}`}>
           {task.title}
         </div>
+        {task.completed && task.completedDate && (
+          <div className="text-xs text-[#3fb950] mt-0.5">
+            Completed in {formatDuration(new Date(task.completedDate).getTime() - new Date(task.startDate).getTime())}
+          </div>
+        )}
         <div className="text-xs text-[#8b949e] mt-0.5">
           Due {new Date(task.dueDate).toLocaleDateString()} · {task.category}
         </div>
@@ -27,7 +41,7 @@ export function TaskItem({ task, onComplete, onDelete }: Props) {
         </button>
       )}
       <button
-        aria-label="Delete"
+        aria-label={`Delete ${task.title}`}
         onClick={() => onDelete(task.id)}
         className="text-[#8b949e] hover:text-[#f85149] text-xl leading-none shrink-0"
       >

@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { TasksTab } from './TasksTab'
+import { completeTask } from '../../store/tasks'
+import { recordCompletion } from '../../store/streaks'
 
 vi.mock('../../store/tasks', () => ({
   getTasks: vi.fn().mockResolvedValue([{
@@ -30,5 +32,30 @@ describe('TasksTab', () => {
   it('shows complete button for incomplete task', async () => {
     render(<MemoryRouter><TasksTab /></MemoryRouter>)
     expect(await screen.findByRole('button', { name: /complete/i })).toBeInTheDocument()
+  })
+
+  it('does not call recordCompletion when streakContribution is none', async () => {
+    const { getTasks } = await import('../../store/tasks')
+    vi.mocked(getTasks).mockResolvedValueOnce([{
+      id: '3', title: 'No streak task',
+      startDate: new Date(), dueDate: new Date(),
+      category: 'productivity', completed: false, streakContribution: 'none'
+    }])
+    render(<MemoryRouter><TasksTab /></MemoryRouter>)
+    const completeBtn = await screen.findByRole('button', { name: /complete/i })
+    fireEvent.click(completeBtn)
+    await vi.waitFor(() => {
+      expect(completeTask).toHaveBeenCalledWith('3')
+    })
+    expect(recordCompletion).not.toHaveBeenCalled()
+  })
+
+  it('calls completeTask when Complete button is clicked', async () => {
+    render(<MemoryRouter><TasksTab /></MemoryRouter>)
+    const completeBtn = await screen.findByRole('button', { name: /complete/i })
+    fireEvent.click(completeBtn)
+    await vi.waitFor(() => {
+      expect(completeTask).toHaveBeenCalledWith('1')
+    })
   })
 })
