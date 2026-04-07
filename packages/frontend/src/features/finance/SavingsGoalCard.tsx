@@ -6,7 +6,9 @@ interface Props {
 }
 
 export function SavingsGoalCard({ goal, onContribute }: Props) {
-  const pct = Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100))
+  const pct = goal.targetAmount > 0
+    ? Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100))
+    : 0
 
   return (
     <div className="bg-[#161b22] rounded-xl p-4 border border-[#30363d]">
@@ -27,6 +29,9 @@ export function SavingsGoalCard({ goal, onContribute }: Props) {
       <div className="flex justify-between text-xs text-[#8b949e]">
         <span>${goal.currentAmount} / ${goal.targetAmount}</span>
         <button onClick={() => onContribute(goal.id)} className="text-[#58a6ff]">+ Contribute</button>
+      </div>
+      <div className="text-xs text-[#8b949e] mt-1">
+        Due {new Date(goal.deadline).toLocaleDateString()}
       </div>
     </div>
   )

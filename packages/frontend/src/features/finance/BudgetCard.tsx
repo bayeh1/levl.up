@@ -7,7 +7,9 @@ interface Props {
 
 export function BudgetCard({ budget, onLogExpense }: Props) {
   const totalSpent = budget.spent.reduce((sum, e) => sum + e.amount, 0)
-  const pct = Math.min(100, Math.round((totalSpent / budget.monthlyLimit) * 100))
+  const pct = budget.monthlyLimit > 0
+    ? Math.min(100, Math.round((totalSpent / budget.monthlyLimit) * 100))
+    : 0
   const color = pct < 70 ? '#3fb950' : pct < 90 ? '#ffd200' : '#f85149'
 
   return (

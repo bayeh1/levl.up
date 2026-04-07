@@ -26,4 +26,16 @@ describe('FinanceTab', () => {
     render(<MemoryRouter><FinanceTab /></MemoryRouter>)
     expect(await screen.findByText('Emergency Fund')).toBeInTheDocument()
   })
+
+  it('renders the Add Goal button', async () => {
+    render(<MemoryRouter><FinanceTab /></MemoryRouter>)
+    expect(await screen.findByText('+ Add goal')).toBeInTheDocument()
+  })
+
+  it('shows No budgets yet empty state when budgets are empty', async () => {
+    const { getBudgets } = await import('../../store/finance')
+    vi.mocked(getBudgets).mockResolvedValueOnce([])
+    render(<MemoryRouter><FinanceTab /></MemoryRouter>)
+    expect(await screen.findByText('No budgets yet')).toBeInTheDocument()
+  })
 })
