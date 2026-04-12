@@ -13,14 +13,17 @@ interface Props {
 export function BudgetForm({ onSubmit, onCancel }: Props) {
   const [category, setCategory] = useState('')
   const [limit, setLimit] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <form
-      aria-label="Add budget"
+      aria-label="New budget form"
       onSubmit={(e) => {
         e.preventDefault()
+        if (!category.trim()) { setError('Category name is required'); return }
         const parsed = parseFloat(limit)
-        if (!category.trim() || !isFinite(parsed) || parsed <= 0) return
+        if (!isFinite(parsed) || parsed <= 0) { setError('Monthly limit must be greater than 0'); return }
+        setError(null)
         onSubmit({ category: category.trim(), monthlyLimit: parsed })
       }}
       className="bg-[#161b22] rounded-xl p-4 border border-[#30363d] space-y-3"
@@ -48,6 +51,7 @@ export function BudgetForm({ onSubmit, onCancel }: Props) {
           onChange={(e) => setLimit(e.target.value)}
         />
       </div>
+      {error && <p role="alert" className="text-xs text-[#f85149]">{error}</p>}
       <div className="flex gap-2">
         <button type="submit" className="flex-1 bg-[#238636] text-white py-2 rounded-lg text-sm font-medium">
           Add Budget

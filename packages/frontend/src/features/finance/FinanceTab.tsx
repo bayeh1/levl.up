@@ -61,9 +61,13 @@ export function FinanceTab() {
   }
 
   async function handleAddBudget(fields: { category: string; monthlyLimit: number }) {
-    await addBudget({ id: crypto.randomUUID(), ...fields, spent: [] })
-    setShowBudgetForm(false)
-    await load()
+    try {
+      await addBudget({ id: crypto.randomUUID(), ...fields, spent: [] })
+      setShowBudgetForm(false)
+      await load()
+    } catch (err) {
+      console.error('Failed to add budget:', err)
+    }
   }
 
   async function handleAddGoal(fields: { title: string; targetAmount: number; deadline: Date; linkedStreak: boolean }) {
@@ -93,13 +97,15 @@ export function FinanceTab() {
       <section>
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xs uppercase tracking-wide text-[#8b949e]">Budgets</h2>
-          <button
-            onClick={() => setShowBudgetForm(true)}
-            className="text-xs text-[#58a6ff]"
-            aria-label="Add budget"
-          >
-            + Add budget
-          </button>
+          {!showBudgetForm && (
+            <button
+              onClick={() => setShowBudgetForm(true)}
+              className="text-xs text-[#58a6ff]"
+              aria-label="Add budget"
+            >
+              + Add budget
+            </button>
+          )}
         </div>
         {showBudgetForm && (
           <BudgetForm onSubmit={handleAddBudget} onCancel={() => setShowBudgetForm(false)} />
