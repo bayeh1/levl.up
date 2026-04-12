@@ -38,4 +38,9 @@ describe('FinanceTab', () => {
     render(<MemoryRouter><FinanceTab /></MemoryRouter>)
     expect(await screen.findByText('No budgets yet')).toBeInTheDocument()
   })
+
+  it('shows Add Budget button', async () => {
+    render(<MemoryRouter><FinanceTab /></MemoryRouter>)
+    expect(await screen.findByRole('button', { name: /add budget/i })).toBeInTheDocument()
+  })
 })

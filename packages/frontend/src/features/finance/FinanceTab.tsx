@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { BudgetCard } from './BudgetCard'
+import { BudgetForm } from './BudgetForm'
 import { SavingsGoalCard } from './SavingsGoalCard'
 import { ExpenseForm } from './ExpenseForm'
 import { SavingsGoalForm } from './SavingsGoalForm'
-import { getBudgets, getSavingsGoals, logExpense, updateSavingsGoal, addSavingsGoal } from '../../store/finance'
+import { getBudgets, getSavingsGoals, logExpense, updateSavingsGoal, addSavingsGoal, addBudget } from '../../store/finance'
 import type { Budget, SavingsGoal } from '@levl-up/shared'
 
 function ContributeForm({ onSubmit, onCancel }: { onSubmit: (amount: number) => void; onCancel: () => void }) {
@@ -31,6 +32,7 @@ export function FinanceTab() {
   const [logBudgetId, setLogBudgetId] = useState<string | null>(null)
   const [contributeGoalId, setContributeGoalId] = useState<string | null>(null)
   const [showGoalForm, setShowGoalForm] = useState(false)
+  const [showBudgetForm, setShowBudgetForm] = useState(false)
 
   async function load() {
     const [b, g] = await Promise.all([getBudgets(), getSavingsGoals()])
@@ -55,6 +57,12 @@ export function FinanceTab() {
     if (!goal) return
     await updateSavingsGoal(goalId, goal.currentAmount + amount)
     setContributeGoalId(null)
+    await load()
+  }
+
+  async function handleAddBudget(fields: { category: string; monthlyLimit: number }) {
+    await addBudget({ id: crypto.randomUUID(), ...fields, spent: [] })
+    setShowBudgetForm(false)
     await load()
   }
 
@@ -83,7 +91,19 @@ export function FinanceTab() {
       )}
 
       <section>
-        <h2 className="text-xs uppercase tracking-wide text-[#8b949e] mb-2">Budgets</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xs uppercase tracking-wide text-[#8b949e]">Budgets</h2>
+          <button
+            onClick={() => setShowBudgetForm(true)}
+            className="text-xs text-[#58a6ff]"
+            aria-label="Add budget"
+          >
+            + Add budget
+          </button>
+        </div>
+        {showBudgetForm && (
+          <BudgetForm onSubmit={handleAddBudget} onCancel={() => setShowBudgetForm(false)} />
+        )}
         <div className="space-y-2">
           {budgets.length === 0 && <p className="text-[#8b949e] text-sm">No budgets yet</p>}
           {budgets.map((b) => <BudgetCard key={b.id} budget={b} onLogExpense={setLogBudgetId} />)}
