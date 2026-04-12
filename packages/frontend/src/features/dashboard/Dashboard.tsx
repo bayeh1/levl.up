@@ -6,7 +6,8 @@ import { getConsecutiveStreak, getTodayStreak, getStreakHealth } from '../../sto
 import { getTasks } from '../../store/tasks'
 import { getSavingsGoals } from '../../store/finance'
 import { SkeletonCard } from '../../components/SkeletonCard'
-import type { Task } from '@levl-up/shared'
+import { StreakCalendar } from './StreakCalendar'
+import type { Task, Streak } from '@levl-up/shared'
 
 export function Dashboard() {
   const [streak, setStreak] = useState(0)
@@ -15,6 +16,7 @@ export function Dashboard() {
   const [totalToday, setTotalToday] = useState(0)
   const [nextTask, setNextTask] = useState<Task | null>(null)
   const [savingsProgress, setSavingsProgress] = useState(0)
+  const [streakHistory, setStreakHistory] = useState<Streak[]>([])
   const [loadError, setLoadError] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -27,6 +29,13 @@ export function Dashboard() {
           getTasks(),
           getSavingsGoals()
         ])
+        try {
+          const { getAllStreaks } = await import('../../store/streaks')
+          const allStreaks = await getAllStreaks()
+          setStreakHistory(allStreaks)
+        } catch {
+          // getAllStreaks may not be available in all environments
+        }
         setStreak(consecutive)
         const completed = todayStreak?.completedCount ?? 0
         setCompletedToday(completed)
@@ -63,6 +72,7 @@ export function Dashboard() {
     <div className="min-h-dvh bg-gradient-to-b from-[#1a1a2e] to-[#0d1117]">
       <StreakCounter count={streak} />
       <HealthBar health={health} />
+      <StreakCalendar streaks={streakHistory} />
 
       {loadError && (
         <p className="text-center text-[#f85149] text-sm px-4">Failed to load data. Please restart the app.</p>
