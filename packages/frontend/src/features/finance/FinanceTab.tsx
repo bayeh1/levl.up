@@ -33,6 +33,7 @@ export function FinanceTab() {
   const [contributeGoalId, setContributeGoalId] = useState<string | null>(null)
   const [showGoalForm, setShowGoalForm] = useState(false)
   const [showBudgetForm, setShowBudgetForm] = useState(false)
+  const [budgetSaveError, setBudgetSaveError] = useState<string | null>(null)
 
   async function load() {
     const [b, g] = await Promise.all([getBudgets(), getSavingsGoals()])
@@ -62,11 +63,13 @@ export function FinanceTab() {
 
   async function handleAddBudget(fields: { category: string; monthlyLimit: number }) {
     try {
+      setBudgetSaveError(null)
       await addBudget({ id: crypto.randomUUID(), ...fields, spent: [] })
       setShowBudgetForm(false)
       await load()
     } catch (err) {
       console.error('Failed to add budget:', err)
+      setBudgetSaveError('Failed to save budget. Please try again.')
     }
   }
 
@@ -108,8 +111,9 @@ export function FinanceTab() {
           )}
         </div>
         {showBudgetForm && (
-          <BudgetForm onSubmit={handleAddBudget} onCancel={() => setShowBudgetForm(false)} />
+          <BudgetForm onSubmit={handleAddBudget} onCancel={() => { setShowBudgetForm(false); setBudgetSaveError(null) }} />
         )}
+        {budgetSaveError && <p role="alert" className="text-xs text-[#f85149] mt-1">{budgetSaveError}</p>}
         <div className="space-y-2">
           {budgets.length === 0 && <p className="text-[#8b949e] text-sm">No budgets yet</p>}
           {budgets.map((b) => <BudgetCard key={b.id} budget={b} onLogExpense={setLogBudgetId} />)}

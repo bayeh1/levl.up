@@ -31,20 +31,22 @@ describe('BudgetForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('does not submit with zero limit', () => {
+  it('does not submit with zero limit', async () => {
     render(<BudgetForm onSubmit={onSubmit} onCancel={onCancel} />)
     fireEvent.change(screen.getByLabelText(/category/i), { target: { value: 'Food' } })
     fireEvent.change(screen.getByLabelText(/monthly limit/i), { target: { value: '0' } })
     fireEvent.submit(screen.getByRole('form'))
     expect(onSubmit).not.toHaveBeenCalled()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Monthly limit must be greater than 0')
   })
 
-  it('does not submit with negative limit', () => {
+  it('does not submit with negative limit', async () => {
     render(<BudgetForm onSubmit={onSubmit} onCancel={onCancel} />)
     fireEvent.change(screen.getByLabelText(/category/i), { target: { value: 'Food' } })
     fireEvent.change(screen.getByLabelText(/monthly limit/i), { target: { value: '-50' } })
     fireEvent.submit(screen.getByRole('form'))
     expect(onSubmit).not.toHaveBeenCalled()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Monthly limit must be greater than 0')
   })
 
   it('shows error message on empty category', async () => {
