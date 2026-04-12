@@ -5,6 +5,7 @@ import { HealthBar } from './HealthBar'
 import { getConsecutiveStreak, getTodayStreak, getStreakHealth } from '../../store/streaks'
 import { getTasks } from '../../store/tasks'
 import { getSavingsGoals } from '../../store/finance'
+import { SkeletonCard } from '../../components/SkeletonCard'
 import type { Task } from '@levl-up/shared'
 
 export function Dashboard() {
@@ -15,6 +16,7 @@ export function Dashboard() {
   const [nextTask, setNextTask] = useState<Task | null>(null)
   const [savingsProgress, setSavingsProgress] = useState(0)
   const [loadError, setLoadError] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
@@ -50,6 +52,8 @@ export function Dashboard() {
       } catch (err) {
         console.error('Dashboard load failed:', err)
         setLoadError(true)
+      } finally {
+        setLoading(false)
       }
     }
     load()
@@ -64,35 +68,45 @@ export function Dashboard() {
         <p className="text-center text-[#f85149] text-sm px-4">Failed to load data. Please restart the app.</p>
       )}
 
-      <div className="px-4 grid grid-cols-2 gap-3 mb-4">
-        <Link
-          to="/tasks"
-          aria-label={`View tasks — ${completedToday} of ${totalToday} done today`}
-          className="bg-[#161b22] rounded-xl p-4 text-center border border-[#30363d]"
-        >
-          <div className="text-2xl font-bold text-[#58a6ff]">{completedToday}/{totalToday}</div>
-          <div className="text-xs text-[#8b949e] mt-1">Tasks Today</div>
-        </Link>
-        <Link
-          to="/finance"
-          aria-label={`View finance — ${savingsProgress}% savings goal progress`}
-          className="bg-[#161b22] rounded-xl p-4 text-center border border-[#30363d]"
-        >
-          <div data-testid="savings-progress" className="text-2xl font-bold text-[#3fb950]">{savingsProgress}%</div>
-          <div className="text-xs text-[#8b949e] mt-1">Savings</div>
-        </Link>
-      </div>
+      {loading ? (
+        <div className="px-4 space-y-3">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : (
+        <>
+          <div className="px-4 grid grid-cols-2 gap-3 mb-4">
+            <Link
+              to="/tasks"
+              aria-label={`View tasks — ${completedToday} of ${totalToday} done today`}
+              className="bg-[#161b22] rounded-xl p-4 text-center border border-[#30363d]"
+            >
+              <div className="text-2xl font-bold text-[#58a6ff]">{completedToday}/{totalToday}</div>
+              <div className="text-xs text-[#8b949e] mt-1">Tasks Today</div>
+            </Link>
+            <Link
+              to="/finance"
+              aria-label={`View finance — ${savingsProgress}% savings goal progress`}
+              className="bg-[#161b22] rounded-xl p-4 text-center border border-[#30363d]"
+            >
+              <div data-testid="savings-progress" className="text-2xl font-bold text-[#3fb950]">{savingsProgress}%</div>
+              <div className="text-xs text-[#8b949e] mt-1">Savings</div>
+            </Link>
+          </div>
 
-      {nextTask && (
-        <Link
-          to="/tasks"
-          aria-label={`Go to tasks — next: ${nextTask.title}`}
-          className="mx-4 bg-[#161b22] rounded-xl p-4 border border-[#30363d] block"
-        >
-          <div className="text-xs text-[#8b949e] mb-1 uppercase tracking-wide">Next Task</div>
-          <div className="font-semibold text-[#ffd200]">{nextTask.title}</div>
-          <div className="text-xs text-[#8b949e] mt-1">Due today · streaks on completion</div>
-        </Link>
+          {nextTask && (
+            <Link
+              to="/tasks"
+              aria-label={`Go to tasks — next: ${nextTask.title}`}
+              className="mx-4 bg-[#161b22] rounded-xl p-4 border border-[#30363d] block"
+            >
+              <div className="text-xs text-[#8b949e] mb-1 uppercase tracking-wide">Next Task</div>
+              <div className="font-semibold text-[#ffd200]">{nextTask.title}</div>
+              <div className="text-xs text-[#8b949e] mt-1">Due today · streaks on completion</div>
+            </Link>
+          )}
+        </>
       )}
     </div>
   )

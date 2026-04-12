@@ -32,11 +32,11 @@ describe('FinanceTab', () => {
     expect(await screen.findByText('+ Add goal')).toBeInTheDocument()
   })
 
-  it('shows No budgets yet empty state when budgets are empty', async () => {
+  it('shows Add a budget CTA when budgets are empty', async () => {
     const { getBudgets } = await import('../../store/finance')
     vi.mocked(getBudgets).mockResolvedValueOnce([])
     render(<MemoryRouter><FinanceTab /></MemoryRouter>)
-    expect(await screen.findByText('No budgets yet')).toBeInTheDocument()
+    expect(await screen.findByText('+ Add a budget')).toBeInTheDocument()
   })
 
   it('shows Add Budget button', async () => {

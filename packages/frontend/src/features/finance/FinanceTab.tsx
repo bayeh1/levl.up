@@ -5,6 +5,7 @@ import { SavingsGoalCard } from './SavingsGoalCard'
 import { ExpenseForm } from './ExpenseForm'
 import { SavingsGoalForm } from './SavingsGoalForm'
 import { getBudgets, getSavingsGoals, logExpense, updateSavingsGoal, addSavingsGoal, addBudget } from '../../store/finance'
+import { SkeletonCard } from '../../components/SkeletonCard'
 import type { Budget, SavingsGoal } from '@levl-up/shared'
 
 function ContributeForm({ onSubmit, onCancel }: { onSubmit: (amount: number) => void; onCancel: () => void }) {
@@ -34,11 +35,16 @@ export function FinanceTab() {
   const [showGoalForm, setShowGoalForm] = useState(false)
   const [showBudgetForm, setShowBudgetForm] = useState(false)
   const [budgetSaveError, setBudgetSaveError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   async function load() {
-    const [b, g] = await Promise.all([getBudgets(), getSavingsGoals()])
-    setBudgets(b)
-    setGoals(g)
+    try {
+      const [b, g] = await Promise.all([getBudgets(), getSavingsGoals()])
+      setBudgets(b)
+      setGoals(g)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -100,7 +106,7 @@ export function FinanceTab() {
       <section>
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xs uppercase tracking-wide text-[#8b949e]">Budgets</h2>
-          {!showBudgetForm && (
+          {!loading && !showBudgetForm && (
             <button
               onClick={() => setShowBudgetForm(true)}
               className="text-xs text-[#58a6ff]"
@@ -110,37 +116,56 @@ export function FinanceTab() {
             </button>
           )}
         </div>
-        {showBudgetForm && (
-          <BudgetForm onSubmit={handleAddBudget} onCancel={() => { setShowBudgetForm(false); setBudgetSaveError(null) }} />
+        {loading ? (
+          <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+        ) : (
+          <>
+            {showBudgetForm && (
+              <BudgetForm onSubmit={handleAddBudget} onCancel={() => { setShowBudgetForm(false); setBudgetSaveError(null) }} />
+            )}
+            {budgetSaveError && <p role="alert" className="text-xs text-[#f85149] mt-1">{budgetSaveError}</p>}
+            <div className="space-y-2">
+              {budgets.length === 0 && !showBudgetForm && (
+                <button
+                  onClick={() => setShowBudgetForm(true)}
+                  className="text-sm text-[#58a6ff]"
+                >
+                  + Add a budget
+                </button>
+              )}
+              {budgets.map((b) => <BudgetCard key={b.id} budget={b} onLogExpense={setLogBudgetId} />)}
+            </div>
+          </>
         )}
-        {budgetSaveError && <p role="alert" className="text-xs text-[#f85149] mt-1">{budgetSaveError}</p>}
-        <div className="space-y-2">
-          {budgets.length === 0 && <p className="text-[#8b949e] text-sm">No budgets yet</p>}
-          {budgets.map((b) => <BudgetCard key={b.id} budget={b} onLogExpense={setLogBudgetId} />)}
-        </div>
       </section>
 
       <section>
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xs uppercase tracking-wide text-[#8b949e]">Savings Goals</h2>
-          <button onClick={() => setShowGoalForm(true)} className="text-xs text-[#58a6ff]">+ Add goal</button>
+          {!loading && <button onClick={() => setShowGoalForm(true)} className="text-xs text-[#58a6ff]">+ Add goal</button>}
         </div>
-        {showGoalForm && (
-          <SavingsGoalForm
-            onSubmit={handleAddGoal}
-            onCancel={() => setShowGoalForm(false)}
-          />
+        {loading ? (
+          <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+        ) : (
+          <>
+            {showGoalForm && (
+              <SavingsGoalForm
+                onSubmit={handleAddGoal}
+                onCancel={() => setShowGoalForm(false)}
+              />
+            )}
+            {contributeGoalId && (
+              <ContributeForm
+                onSubmit={(amount) => handleContributeSubmit(contributeGoalId, amount)}
+                onCancel={() => setContributeGoalId(null)}
+              />
+            )}
+            <div className="space-y-2">
+              {goals.length === 0 && <p className="text-[#8b949e] text-sm">No savings goals yet</p>}
+              {goals.map((g) => <SavingsGoalCard key={g.id} goal={g} onContribute={handleContribute} />)}
+            </div>
+          </>
         )}
-        {contributeGoalId && (
-          <ContributeForm
-            onSubmit={(amount) => handleContributeSubmit(contributeGoalId, amount)}
-            onCancel={() => setContributeGoalId(null)}
-          />
-        )}
-        <div className="space-y-2">
-          {goals.length === 0 && <p className="text-[#8b949e] text-sm">No savings goals yet</p>}
-          {goals.map((g) => <SavingsGoalCard key={g.id} goal={g} onContribute={handleContribute} />)}
-        </div>
       </section>
     </div>
   )

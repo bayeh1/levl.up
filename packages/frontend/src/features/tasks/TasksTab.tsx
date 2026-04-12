@@ -3,13 +3,21 @@ import { TaskItem } from './TaskItem'
 import { TaskForm } from './TaskForm'
 import { getTasks, addTask, completeTask, deleteTask, createTask } from '../../store/tasks'
 import { recordCompletion } from '../../store/streaks'
+import { SkeletonCard } from '../../components/SkeletonCard'
 import type { Task, StreakContribution } from '@levl-up/shared'
 
 export function TasksTab() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  async function load() { setTasks(await getTasks()) }
+  async function load() {
+    try {
+      setTasks(await getTasks())
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => { load() }, [])
 
@@ -45,30 +53,43 @@ export function TasksTab() {
 
       {showForm && <TaskForm onSubmit={handleAdd} onCancel={() => setShowForm(false)} />}
 
-      {overdueTasks.length > 0 && (
-        <section>
-          <h2 className="text-xs uppercase tracking-wide text-[#f85149] mb-2">Overdue</h2>
-          <div className="space-y-2">
-            {overdueTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
-          </div>
-        </section>
-      )}
+      {loading ? (
+        <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+      ) : (
+        <>
+          {overdueTasks.length > 0 && (
+            <section>
+              <h2 className="text-xs uppercase tracking-wide text-[#f85149] mb-2">Overdue</h2>
+              <div className="space-y-2">
+                {overdueTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
+              </div>
+            </section>
+          )}
 
-      <section>
-        <h2 className="text-xs uppercase tracking-wide text-[#8b949e] mb-2">Today</h2>
-        <div className="space-y-2">
-          {todayTasks.length === 0 && <p className="text-[#8b949e] text-sm">No tasks for today</p>}
-          {todayTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
-        </div>
-      </section>
+          <section>
+            <h2 className="text-xs uppercase tracking-wide text-[#8b949e] mb-2">Today</h2>
+            <div className="space-y-2">
+              {todayTasks.length === 0 && !showForm && (
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="text-sm text-[#58a6ff]"
+                >
+                  + Add your first task
+                </button>
+              )}
+              {todayTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
+            </div>
+          </section>
 
-      {upcomingTasks.length > 0 && (
-        <section>
-          <h2 className="text-xs uppercase tracking-wide text-[#8b949e] mb-2">Upcoming</h2>
-          <div className="space-y-2">
-            {upcomingTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
-          </div>
-        </section>
+          {upcomingTasks.length > 0 && (
+            <section>
+              <h2 className="text-xs uppercase tracking-wide text-[#8b949e] mb-2">Upcoming</h2>
+              <div className="space-y-2">
+                {upcomingTasks.map((t) => <TaskItem key={t.id} task={t} onComplete={handleComplete} onDelete={async (id) => { await deleteTask(id); load() }} />)}
+              </div>
+            </section>
+          )}
+        </>
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Task } from '@levl-up/shared'
 
 function formatDuration(ms: number): string {
@@ -16,8 +17,17 @@ interface Props {
 }
 
 export function TaskItem({ task, onComplete, onDelete }: Props) {
+  const [completing, setCompleting] = useState(false)
+
+  function handleComplete() {
+    setCompleting(true)
+    onComplete(task.id)
+  }
+
   return (
-    <div className="flex items-center gap-3 bg-[#161b22] rounded-xl p-4 border border-[#30363d]">
+    <div className={`flex items-center gap-3 rounded-xl p-4 border transition-colors duration-300 ${
+      completing ? 'bg-[#1a3a27] border-[#3fb950]' : 'bg-[#161b22] border-[#30363d]'
+    }`}>
       <div className="flex-1 min-w-0">
         <div className={`font-medium truncate ${task.completed ? 'line-through text-[#8b949e]' : 'text-[#e6edf3]'}`}>
           {task.title}
@@ -34,10 +44,10 @@ export function TaskItem({ task, onComplete, onDelete }: Props) {
       {!task.completed && (
         <button
           aria-label="Complete"
-          onClick={() => onComplete(task.id)}
+          onClick={handleComplete}
           className="text-xs bg-[#238636] text-white px-3 py-1.5 rounded-lg font-medium shrink-0"
         >
-          Complete
+          {completing ? '✓' : 'Complete'}
         </button>
       )}
       <button
