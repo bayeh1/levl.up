@@ -117,7 +117,10 @@ export function FinanceTab() {
           )}
         </div>
         {loading ? (
-          <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+          <div role="status" className="space-y-2">
+            <span className="sr-only">Loading budgets…</span>
+            <SkeletonCard /><SkeletonCard />
+          </div>
         ) : (
           <>
             {showBudgetForm && (
@@ -145,7 +148,10 @@ export function FinanceTab() {
           {!loading && <button onClick={() => setShowGoalForm(true)} className="text-xs text-[#58a6ff]">+ Add goal</button>}
         </div>
         {loading ? (
-          <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+          <div role="status" className="space-y-2">
+            <span className="sr-only">Loading savings goals…</span>
+            <SkeletonCard /><SkeletonCard />
+          </div>
         ) : (
           <>
             {showGoalForm && (

@@ -54,7 +54,10 @@ export function TasksTab() {
       {showForm && <TaskForm onSubmit={handleAdd} onCancel={() => setShowForm(false)} />}
 
       {loading ? (
-        <div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>
+        <div role="status" className="space-y-2">
+          <span className="sr-only">Loading tasks…</span>
+          <SkeletonCard /><SkeletonCard />
+        </div>
       ) : (
         <>
           {overdueTasks.length > 0 && (

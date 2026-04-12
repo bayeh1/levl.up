@@ -69,7 +69,8 @@ export function Dashboard() {
       )}
 
       {loading ? (
-        <div className="px-4 space-y-3">
+        <div role="status" className="px-4 space-y-3">
+          <span className="sr-only">Loading dashboard…</span>
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
