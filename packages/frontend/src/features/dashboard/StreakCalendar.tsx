@@ -8,8 +8,7 @@ export function StreakCalendar({ streaks }: Props) {
   const days: string[] = []
   for (let i = 29; i >= 0; i--) {
     const d = new Date()
-    d.setDate(d.getDate() - i)
-    days.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)
+    days.push(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - i)).toISOString().slice(0, 10))
   }
 
   const streakMap = new Map(streaks.map((s) => [s.date, s]))
