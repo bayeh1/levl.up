@@ -8,6 +8,12 @@ import { getBudgets, getSavingsGoals, logExpense, updateSavingsGoal, addSavingsG
 import { SkeletonCard } from '../../components/SkeletonCard'
 import type { Budget, SavingsGoal } from '@levl-up/shared'
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3001'
+
+function getMilestoneQuarter(current: number, target: number): number {
+  return target > 0 ? Math.floor((current / target) * 4) : 0
+}
+
 function ContributeForm({ onSubmit, onCancel }: { onSubmit: (amount: number) => void; onCancel: () => void }) {
   const [amount, setAmount] = useState('')
   return (
@@ -62,9 +68,32 @@ export function FinanceTab() {
   async function handleContributeSubmit(goalId: string, amount: number) {
     const goal = goals.find((g) => g.id === goalId)
     if (!goal) return
-    await updateSavingsGoal(goalId, goal.currentAmount + amount)
+    const oldQ = getMilestoneQuarter(goal.currentAmount, goal.targetAmount)
+    const newAmount = goal.currentAmount + amount
+    const newQ = getMilestoneQuarter(newAmount, goal.targetAmount)
+    await updateSavingsGoal(goalId, newAmount)
     setContributeGoalId(null)
     await load()
+    if (newQ > oldQ && newQ >= 1) {
+      try {
+        const pcts = ['', '25%', '50%', '75%', '100%']
+        const reg = await navigator.serviceWorker.ready
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await fetch(`${BACKEND_URL}/push/notify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              endpoint: sub.endpoint,
+              title: 'Savings milestone reached! 🎉',
+              body: `"${goal.title}" is now ${pcts[Math.min(newQ, 4)]} funded.`
+            })
+          })
+        }
+      } catch {
+        // milestone notification is non-critical
+      }
+    }
   }
 
   async function handleAddBudget(fields: { category: string; monthlyLimit: number }) {

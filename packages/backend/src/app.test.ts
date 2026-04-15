@@ -1,4 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('web-push', () => ({
+  default: {
+    setVapidDetails: vi.fn(),
+    sendNotification: vi.fn().mockResolvedValue({ statusCode: 201 })
+  }
+}))
+
 import { app } from './app'
 
 describe('GET /health', () => {

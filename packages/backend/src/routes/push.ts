@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
-import { saveSubscription, removeSubscription } from '../storage'
+import { saveSubscription, removeSubscription, getSubscriptions } from '../storage'
+import { sendPushNotification } from '../notify'
 import type { AppPushSubscription } from '@levl-up/shared'
 
 export const pushRoutes = new Hono()
@@ -24,5 +25,20 @@ pushRoutes.delete('/unsubscribe', async (c) => {
   const body = await c.req.json()
   if (!body.endpoint) return c.json({ error: 'Missing endpoint' }, 400)
   await removeSubscription(body.endpoint)
+  return c.json({ ok: true })
+})
+
+pushRoutes.post('/notify', async (c) => {
+  const body = await c.req.json()
+  const { endpoint, title, body: msgBody } = body
+  if (!endpoint || !title || !msgBody) return c.json({ error: 'Missing fields' }, 400)
+  const subs = await getSubscriptions()
+  const sub = subs.find((s) => s.endpoint === endpoint)
+  if (!sub) return c.json({ error: 'Not found' }, 404)
+  try {
+    await sendPushNotification(sub, { title, body: msgBody })
+  } catch {
+    // expired subscription — silently ignore
+  }
   return c.json({ ok: true })
 })
