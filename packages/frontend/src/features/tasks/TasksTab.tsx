@@ -2,18 +2,22 @@ import { useEffect, useState } from 'react'
 import { TaskItem } from './TaskItem'
 import { TaskForm } from './TaskForm'
 import { getTasks, addTask, completeTask, deleteTask, createTask } from '../../store/tasks'
+import { getGoals } from '../../store/goals'
 import { recordCompletion } from '../../store/streaks'
 import { SkeletonCard } from '../../components/SkeletonCard'
-import type { Task, StreakContribution } from '@levl-up/shared'
+import type { Task, StreakContribution, Goal } from '@levl-up/shared'
 
 export function TasksTab() {
   const [tasks, setTasks] = useState<Task[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
 
   async function load() {
     try {
-      setTasks(await getTasks())
+      const [fetchedTasks, fetchedGoals] = await Promise.all([getTasks(), getGoals()])
+      setTasks(fetchedTasks)
+      setGoals(fetchedGoals.filter((g) => !g.completed))
     } finally {
       setLoading(false)
     }
@@ -28,7 +32,7 @@ export function TasksTab() {
     await load()
   }
 
-  async function handleAdd(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance'; streakContribution: StreakContribution }) {
+  async function handleAdd(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance'; streakContribution: StreakContribution; goalId?: string }) {
     await addTask(createTask(fields))
     setShowForm(false)
     await load()
@@ -51,7 +55,7 @@ export function TasksTab() {
         </button>
       </div>
 
-      {showForm && <TaskForm onSubmit={handleAdd} onCancel={() => setShowForm(false)} />}
+      {showForm && <TaskForm onSubmit={handleAdd} onCancel={() => setShowForm(false)} goals={goals} />}
 
       {loading ? (
         <div role="status" className="space-y-2">

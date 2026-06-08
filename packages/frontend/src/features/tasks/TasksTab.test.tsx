@@ -23,6 +23,10 @@ vi.mock('../../store/streaks', () => ({
   recordCompletion: vi.fn().mockResolvedValue(undefined)
 }))
 
+vi.mock('../../store/goals', () => ({
+  getGoals: vi.fn().mockResolvedValue([])
+}))
+
 describe('TasksTab', () => {
   it('renders task title', async () => {
     render(<MemoryRouter><TasksTab /></MemoryRouter>)

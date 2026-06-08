@@ -3,8 +3,9 @@ import { NavLink } from 'react-router-dom'
 const tabs = [
   { to: '/', label: 'Today', icon: '🔥' },
   { to: '/tasks', label: 'Tasks', icon: '✅' },
+  { to: '/goals', label: 'Goals', icon: '🎯' },
   { to: '/finance', label: 'Finance', icon: '💰' },
-  { to: '/settings', label: 'Settings', icon: '⚙️' }
+  { to: '/settings', label: 'Settings', icon: '⚙️' },
 ]
 
 export function TabBar() {
@@ -16,7 +17,7 @@ export function TabBar() {
           to={tab.to}
           end={tab.to === '/'}
           className={({ isActive }) =>
-            `flex flex-col items-center py-2 px-4 text-xs ${isActive ? 'text-[#ffd200]' : 'text-[#8b949e]'}`
+            `flex flex-col items-center py-2 px-3 text-xs ${isActive ? 'text-[#ffd200]' : 'text-[#8b949e]'}`
           }
         >
           <span className="text-xl">{tab.icon}</span>

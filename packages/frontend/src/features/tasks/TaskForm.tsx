@@ -1,19 +1,21 @@
 import { useState } from 'react'
-import type { StreakContribution } from '@levl-up/shared'
+import type { StreakContribution, Goal } from '@levl-up/shared'
 
 interface Fields {
   title: string
   dueDate: Date
   category: 'productivity' | 'finance'
   streakContribution: StreakContribution
+  goalId?: string
 }
 
 interface Props {
   onSubmit: (fields: Fields) => void
   onCancel: () => void
+  goals?: Goal[]
 }
 
-export function TaskForm({ onSubmit, onCancel }: Props) {
+export function TaskForm({ onSubmit, onCancel, goals = [] }: Props) {
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState(() => {
     const now = new Date()
@@ -21,12 +23,19 @@ export function TaskForm({ onSubmit, onCancel }: Props) {
   })
   const [category, setCategory] = useState<'productivity' | 'finance'>('productivity')
   const [streakContribution, setStreakContribution] = useState<StreakContribution>('full')
+  const [goalId, setGoalId] = useState<string>('')
 
   function handleSubmit() {
     if (!title.trim()) return
     const [y, m, d] = dueDate.split('-').map(Number)
     const localDueDate = new Date(y, m - 1, d)
-    onSubmit({ title: title.trim(), dueDate: localDueDate, category, streakContribution })
+    onSubmit({
+      title: title.trim(),
+      dueDate: localDueDate,
+      category,
+      streakContribution,
+      goalId: goalId || undefined,
+    })
   }
 
   return (
@@ -75,6 +84,21 @@ export function TaskForm({ onSubmit, onCancel }: Props) {
           <option value="none">No streak contribution</option>
         </select>
       </div>
+      {goals.length > 0 && (
+        <div>
+          <label className="block text-xs text-[#8b949e] mb-1">Link to goal (optional)</label>
+          <select
+            className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
+            value={goalId}
+            onChange={(e) => setGoalId(e.target.value)}
+          >
+            <option value="">— None —</option>
+            {goals.map((g) => (
+              <option key={g.id} value={g.id}>{g.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="text-xs text-[#8b949e] px-1">
         Started: {new Date().toLocaleString()}
       </div>
