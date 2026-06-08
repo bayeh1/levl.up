@@ -1,5 +1,7 @@
 export type StreakContribution = 'none' | 'partial' | 'full'
 
+export type PuzzleImageId = 'mountain' | 'ocean' | 'forest' | 'space' | 'city' | 'abstract'
+
 export interface Task {
   id: string
   title: string
@@ -9,10 +11,21 @@ export interface Task {
   category: 'productivity' | 'finance'
   completed: boolean
   streakContribution: StreakContribution
+  goalId?: string
+}
+
+export interface Goal {
+  id: string
+  title: string
+  deadline: Date
+  createdAt: Date
+  puzzleImageId: PuzzleImageId
+  completed: boolean
+  lastResetAt?: string  // YYYY-MM-DD UTC; tasks completed before this don't count toward puzzle
 }
 
 export interface Streak {
-  date: string           // YYYY-MM-DD
+  date: string
   completedCount: number
   totalCount: number
   broken: boolean
@@ -44,6 +57,6 @@ export interface AppPushSubscription {
   endpoint: string
   keys: { p256dh: string; auth: string }
   timezone: string
-  dailyReminderTime: string   // HH:MM
-  streakWarningTime: string   // HH:MM
+  dailyReminderTime: string
+  streakWarningTime: string
 }
