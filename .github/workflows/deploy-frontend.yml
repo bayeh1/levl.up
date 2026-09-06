@@ -1,0 +1,31 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/frontend/**
+      - packages/shared/**
+      - package.json
+      - package-lock.json
+      - netlify.toml
+      - .github/workflows/deploy-frontend.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency: deploy-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx netlify-cli@27.5.0 deploy --prod --site "$NETLIFY_SITE_ID" --filter @levl-up/frontend
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
