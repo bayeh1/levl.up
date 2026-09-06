@@ -47,14 +47,18 @@ export function OnboardingWizard({ onComplete }: Props) {
   }
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  useEffect(() => {
     if (subscribed) handleFinish()
   }, [subscribed])
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0d1117] overflow-y-auto">
-      <div className="min-h-full flex flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
-        {/* Step indicator */}
-        <div className="flex gap-2 mb-8">
+    <div className="fixed inset-0 z-50 bg-[#0d1117] flex flex-col px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
+      {/* Step indicator */}
+      <div className="flex gap-2 mb-6">
           {[1, 2, 3].map((s) => (
             <div key={s} className={`h-1 flex-1 rounded-full ${s <= step ? 'bg-[#ffd200]' : 'bg-[#21262d]'}`} />
           ))}
@@ -92,7 +96,7 @@ export function OnboardingWizard({ onComplete }: Props) {
         )}
 
         {step === 2 && (
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex-1 flex flex-col overflow-y-auto">
             <h1 className="text-2xl font-bold mb-2">Add your first task</h1>
             <p className="text-[#8b949e] mb-4">Create a task to complete today and start your streak.</p>
             <TaskForm
@@ -135,7 +139,6 @@ export function OnboardingWizard({ onComplete }: Props) {
             </button>
           </div>
         )}
-      </div>
     </div>
   )
 }
