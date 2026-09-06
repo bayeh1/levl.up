@@ -13,9 +13,10 @@ interface Props {
   onSubmit: (fields: Fields) => void
   onCancel: () => void
   goals?: Goal[]
+  autoFocus?: boolean
 }
 
-export function TaskForm({ onSubmit, onCancel, goals = [] }: Props) {
+export function TaskForm({ onSubmit, onCancel, goals = [], autoFocus = true }: Props) {
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState(() => {
     const now = new Date()
@@ -46,6 +47,7 @@ export function TaskForm({ onSubmit, onCancel, goals = [] }: Props) {
       <div>
         <label className="block text-xs text-[#8b949e] mb-1">Title</label>
         <input
+          autoFocus={autoFocus}
           className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
           placeholder="Task title"
           value={title}

@@ -48,14 +48,14 @@ describe('OnboardingWizard', () => {
   it('advances to step 3 when task form is skipped', () => {
     render(<OnboardingWizard onComplete={onComplete} />)
     fireEvent.click(screen.getByText(/get started/i))
-    fireEvent.click(screen.getByText('Skip task'))
+    fireEvent.click(screen.getByText('Skip →'))
     expect(screen.getByRole('heading', { name: /enable notifications/i })).toBeInTheDocument()
   })
 
   it('calls onComplete and sets localStorage when Skip is clicked on step 3', () => {
     render(<OnboardingWizard onComplete={onComplete} />)
     fireEvent.click(screen.getByText(/get started/i))
-    fireEvent.click(screen.getByText('Skip task'))
+    fireEvent.click(screen.getByText('Skip →'))
     fireEvent.click(screen.getByText('Skip'))
     expect(onComplete).toHaveBeenCalled()
     expect(localStorage.getItem('levlup-onboarded')).toBe('1')
@@ -67,7 +67,7 @@ describe('OnboardingWizard', () => {
     // This test verifies onComplete sets the right key
     render(<OnboardingWizard onComplete={onComplete} />)
     fireEvent.click(screen.getByText(/get started/i))
-    fireEvent.click(screen.getByText('Skip task'))
+    fireEvent.click(screen.getByText('Skip →'))
     fireEvent.click(screen.getByText('Skip'))
     expect(localStorage.getItem('levlup-onboarded')).toBe('1')
   })

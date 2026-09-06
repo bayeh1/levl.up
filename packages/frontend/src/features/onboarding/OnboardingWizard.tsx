@@ -12,6 +12,7 @@ export function OnboardingWizard({ onComplete }: Props) {
   const [step, setStep] = useState(1)
   const { subscribed, loading: pushLoading, error: pushError, subscribe } = usePushSubscription()
   const [quota, setQuota] = useState(() => localStorage.getItem('dailyQuota') ?? '1')
+  const [deadline, setDeadline] = useState('')
 
   function handleFinish() {
     localStorage.setItem('levlup-onboarded', '1')
@@ -26,6 +27,18 @@ export function OnboardingWizard({ onComplete }: Props) {
   function handleQuotaChange(value: string) {
     setQuota(value)
     localStorage.setItem('dailyQuota', value)
+  }
+
+  function handleDeadlineChange(value: string) {
+    setDeadline(value)
+    if (value) {
+      const [y, m, d] = value.split('-').map(Number)
+      const deadlineDate = new Date(y, m - 1, d)
+      const days = Math.ceil((deadlineDate.getTime() - Date.now()) / 86400000)
+      if (days > 0) {
+        handleQuotaChange(String(Math.max(1, days)))
+      }
+    }
   }
 
   async function handleSubscribe() {
@@ -50,13 +63,21 @@ export function OnboardingWizard({ onComplete }: Props) {
         {step === 1 && (
           <div className="flex-1 flex flex-col">
             <h1 className="text-2xl font-bold mb-2">Welcome to Levl.up</h1>
-            <p className="text-[#8b949e] mb-6">Build streaks by completing daily tasks. How many tasks do you want to complete each day?</p>
+            <p className="text-[#8b949e] mb-6">Build streaks by completing daily tasks. Set a goal deadline and we'll suggest a daily quota for you.</p>
+            <label htmlFor="goal-deadline" className="text-xs text-[#8b949e] mb-1 block">Goal deadline (optional)</label>
+            <input
+              id="goal-deadline"
+              type="date"
+              className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm mb-4"
+              value={deadline}
+              onChange={(e) => handleDeadlineChange(e.target.value)}
+            />
             <label htmlFor="daily-quota" className="text-xs text-[#8b949e] mb-1 block">Daily task quota</label>
             <input
               id="daily-quota"
               type="number"
               min="1"
-              max="20"
+              max="365"
               className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm mb-6"
               value={quota}
               onChange={(e) => handleQuotaChange(e.target.value)}
@@ -75,9 +96,16 @@ export function OnboardingWizard({ onComplete }: Props) {
             <h1 className="text-2xl font-bold mb-2">Add your first task</h1>
             <p className="text-[#8b949e] mb-4">Create a task to complete today and start your streak.</p>
             <TaskForm
+              autoFocus={false}
               onSubmit={handleFirstTask}
-              onCancel={() => setStep(3)}
+              onCancel={() => setStep(1)}
             />
+            <button
+              onClick={() => setStep(3)}
+              className="text-[#58a6ff] py-2 text-sm mt-2"
+            >
+              Skip →
+            </button>
           </div>
         )}
 
@@ -95,9 +123,15 @@ export function OnboardingWizard({ onComplete }: Props) {
             </button>
             <button
               onClick={handleFinish}
-              className="text-[#58a6ff] py-2 text-sm"
+              className="text-[#58a6ff] py-2 text-sm mb-2"
             >
               Skip
+            </button>
+            <button
+              onClick={() => setStep(2)}
+              className="text-[#8b949e] py-2 text-sm"
+            >
+              ← Previous
             </button>
           </div>
         )}
