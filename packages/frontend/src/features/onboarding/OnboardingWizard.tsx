@@ -52,7 +52,7 @@ export function OnboardingWizard({ onComplete }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-[#0d1117] overflow-y-auto">
-      <div className="min-h-full flex flex-col p-6">
+      <div className="min-h-full flex flex-col px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
         {/* Step indicator */}
         <div className="flex gap-2 mb-8">
           {[1, 2, 3].map((s) => (
@@ -61,7 +61,7 @@ export function OnboardingWizard({ onComplete }: Props) {
         </div>
 
         {step === 1 && (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col justify-center">
             <h1 className="text-2xl font-bold mb-2">Welcome to Levl.up</h1>
             <p className="text-[#8b949e] mb-6">Build streaks by completing daily tasks. Set a goal deadline and we'll suggest a daily quota for you.</p>
             <label htmlFor="goal-deadline" className="text-xs text-[#8b949e] mb-1 block">Goal deadline (optional)</label>
@@ -92,7 +92,7 @@ export function OnboardingWizard({ onComplete }: Props) {
         )}
 
         {step === 2 && (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col justify-center">
             <h1 className="text-2xl font-bold mb-2">Add your first task</h1>
             <p className="text-[#8b949e] mb-4">Create a task to complete today and start your streak.</p>
             <TaskForm
@@ -110,7 +110,7 @@ export function OnboardingWizard({ onComplete }: Props) {
         )}
 
         {step === 3 && (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col justify-center">
             <h1 className="text-2xl font-bold mb-2">Enable notifications</h1>
             <p className="text-[#8b949e] mb-6">Get daily reminders and streak warnings so you never break your streak.</p>
             {pushError && <p role="alert" className="text-xs text-[#f85149] mb-4">{pushError}</p>}
