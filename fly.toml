@@ -1,0 +1,19 @@
+app = "levlup-backend"
+primary_region = "iad"
+
+[build]
+  dockerfile = "packages/backend/Dockerfile"
+
+[env]
+  PORT = "3001"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[mounts]]
+  source = "levlup_data"
+  destination = "/app/packages/backend/data"
