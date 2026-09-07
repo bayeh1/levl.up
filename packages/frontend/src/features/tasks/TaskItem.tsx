@@ -38,7 +38,7 @@ export function TaskItem({ task, onComplete, onDelete }: Props) {
           </div>
         )}
         <div className="text-xs text-[#8b949e] mt-0.5">
-          Due {new Date(task.dueDate).toLocaleDateString()} · {task.category}
+          Due {new Date(task.dueDate).toLocaleDateString()} · {task.category === 'exercise' ? '🏋️ Exercise' : task.category === 'finance' ? '💰 Finance' : '📋 Productivity'}
         </div>
       </div>
       {!task.completed && (

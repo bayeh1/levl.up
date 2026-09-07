@@ -19,7 +19,7 @@ export function OnboardingWizard({ onComplete }: Props) {
     onComplete()
   }
 
-  async function handleFirstTask(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance'; streakContribution: StreakContribution }) {
+  async function handleFirstTask(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance' | 'exercise'; streakContribution: StreakContribution }) {
     await addTask(createTask(fields))
     setStep(3)
   }

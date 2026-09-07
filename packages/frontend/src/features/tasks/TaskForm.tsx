@@ -4,7 +4,7 @@ import type { StreakContribution, Goal } from '@levl-up/shared'
 interface Fields {
   title: string
   dueDate: Date
-  category: 'productivity' | 'finance'
+  category: 'productivity' | 'finance' | 'exercise'
   streakContribution: StreakContribution
   goalId?: string
 }
@@ -22,7 +22,7 @@ export function TaskForm({ onSubmit, onCancel, goals = [], autoFocus = true }: P
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   })
-  const [category, setCategory] = useState<'productivity' | 'finance'>('productivity')
+  const [category, setCategory] = useState<'productivity' | 'finance' | 'exercise'>('productivity')
   const [streakContribution, setStreakContribution] = useState<StreakContribution>('full')
   const [goalId, setGoalId] = useState<string>('')
 
@@ -68,10 +68,11 @@ export function TaskForm({ onSubmit, onCancel, goals = [], autoFocus = true }: P
         <select
           className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
           value={category}
-          onChange={(e) => setCategory(e.target.value as 'productivity' | 'finance')}
+          onChange={(e) => setCategory(e.target.value as 'productivity' | 'finance' | 'exercise')}
         >
           <option value="productivity">Productivity</option>
           <option value="finance">Finance</option>
+          <option value="exercise">Exercise 🏋️</option>
         </select>
       </div>
       <div>

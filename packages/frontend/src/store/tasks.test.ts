@@ -45,4 +45,9 @@ describe('tasks store', () => {
     expect(task.startDate).toBeInstanceOf(Date)
     expect(task.completed).toBe(false)
   })
+
+  it('createTask supports exercise category', () => {
+    const task = createTask({ title: 'Run 5k', dueDate: new Date(), category: 'exercise', streakContribution: 'full' })
+    expect(task.category).toBe('exercise')
+  })
 })

@@ -27,7 +27,7 @@ export async function deleteTask(id: string): Promise<void> {
 export function createTask(fields: {
   title: string
   dueDate: Date
-  category: 'productivity' | 'finance'
+  category: 'productivity' | 'finance' | 'exercise'
   streakContribution: StreakContribution
 }): Task {
   return {

@@ -32,7 +32,7 @@ export function TasksTab() {
     await load()
   }
 
-  async function handleAdd(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance'; streakContribution: StreakContribution; goalId?: string }) {
+  async function handleAdd(fields: { title: string; dueDate: Date; category: 'productivity' | 'finance' | 'exercise'; streakContribution: StreakContribution; goalId?: string }) {
     await addTask(createTask(fields))
     setShowForm(false)
     await load()
