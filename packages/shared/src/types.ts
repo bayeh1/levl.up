@@ -8,7 +8,7 @@ export interface Task {
   startDate: Date
   dueDate: Date
   completedDate?: Date
-  category: 'productivity' | 'finance'
+  category: 'productivity' | 'finance' | 'exercise'
   completed: boolean
   streakContribution: StreakContribution
   goalId?: string
@@ -22,6 +22,8 @@ export interface Goal {
   puzzleImageId: PuzzleImageId
   completed: boolean
   lastResetAt?: string  // YYYY-MM-DD UTC; tasks completed before this don't count toward puzzle
+  period?: 'weekly' | 'monthly'
+  parentGoalId?: string
 }
 
 export interface Streak {
@@ -59,4 +61,8 @@ export interface AppPushSubscription {
   timezone: string
   dailyReminderTime: string
   streakWarningTime: string
+  hourlyProgressEnabled?: boolean
+  hourlyProgressStart?: string  // HH:MM, e.g. '08:00'
+  hourlyProgressEnd?: string    // HH:MM, e.g. '21:00'
+  weeklyCheckInEnabled?: boolean
 }
