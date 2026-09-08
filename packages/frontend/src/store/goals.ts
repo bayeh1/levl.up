@@ -51,3 +51,18 @@ export function getRevealedPieces(goal: Goal, tasks: Task[]): number {
   const totalPieces = getPieceCount(goal)
   return Math.min(totalPieces, Math.floor((completed / goalTasks.length) * totalPieces))
 }
+
+export async function getMonthlyGoals(): Promise<Goal[]> {
+  const goals = await getGoals()
+  return goals.filter((g) => g.period === 'monthly')
+}
+
+export async function getWeeklyGoals(parentGoalId?: string): Promise<Goal[]> {
+  const goals = await getGoals()
+  return goals.filter((g) => g.period === 'weekly' && (parentGoalId ? g.parentGoalId === parentGoalId : true))
+}
+
+export async function getStandaloneGoals(): Promise<Goal[]> {
+  const goals = await getGoals()
+  return goals.filter((g) => !g.period)
+}

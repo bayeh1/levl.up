@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PUZZLE_IMAGES } from './PuzzleImages'
+import { getMonthlyGoals } from '../../store/goals'
 import type { PuzzleImageId } from '@levl-up/shared'
+import type { Goal } from '@levl-up/shared'
 
 interface Fields {
   title: string
   deadline: Date
   puzzleImageId: PuzzleImageId
+  period?: 'weekly' | 'monthly'
+  parentGoalId?: string
 }
 
 interface Props {
@@ -19,6 +23,17 @@ export function GoalForm({ onSubmit, onCancel }: Props) {
   const defaultDeadline = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   const [deadline, setDeadline] = useState(defaultDeadline)
   const [imageId, setImageId] = useState<PuzzleImageId>('mountain')
+  const [period, setPeriod] = useState<'' | 'weekly' | 'monthly'>('')
+  const [parentGoalId, setParentGoalId] = useState<string>('')
+  const [monthlyGoals, setMonthlyGoals] = useState<Goal[]>([])
+
+  useEffect(() => {
+    getMonthlyGoals().then(setMonthlyGoals)
+  }, [])
+
+  const daysUntilDeadline = deadline
+    ? Math.ceil((new Date(deadline).getTime() - today.getTime()) / 86400000)
+    : 0
 
   return (
     <form
@@ -28,7 +43,13 @@ export function GoalForm({ onSubmit, onCancel }: Props) {
         e.preventDefault()
         if (!title.trim()) return
         const [y, m, d] = deadline.split('-').map(Number)
-        onSubmit({ title: title.trim(), deadline: new Date(y, m - 1, d), puzzleImageId: imageId })
+        onSubmit({
+          title: title.trim(),
+          deadline: new Date(y, m - 1, d),
+          puzzleImageId: imageId,
+          period: period || undefined,
+          parentGoalId: parentGoalId || undefined,
+        })
       }}
     >
       <div>
@@ -43,6 +64,33 @@ export function GoalForm({ onSubmit, onCancel }: Props) {
         />
       </div>
       <div>
+        <label className="block text-xs text-[#8b949e] mb-1">Period</label>
+        <select
+          className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
+          value={period}
+          onChange={(e) => { setPeriod(e.target.value as '' | 'weekly' | 'monthly'); setParentGoalId('') }}
+        >
+          <option value="">Standalone</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      {period === 'weekly' && monthlyGoals.length > 0 && (
+        <div>
+          <label className="block text-xs text-[#8b949e] mb-1">Parent monthly goal (optional)</label>
+          <select
+            className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
+            value={parentGoalId}
+            onChange={(e) => setParentGoalId(e.target.value)}
+          >
+            <option value="">— None —</option>
+            {monthlyGoals.filter((g) => !g.completed).map((g) => (
+              <option key={g.id} value={g.id}>{g.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div>
         <label htmlFor="goal-deadline" className="block text-xs text-[#8b949e] mb-1">Deadline</label>
         <input
           id="goal-deadline"
@@ -52,6 +100,12 @@ export function GoalForm({ onSubmit, onCancel }: Props) {
           onChange={(e) => setDeadline(e.target.value)}
         />
       </div>
+      {period === 'weekly' && daysUntilDeadline > 7 && (
+        <p className="text-xs text-[#d29922]">Weekly goals typically have a deadline within 7 days.</p>
+      )}
+      {period === 'monthly' && daysUntilDeadline > 31 && (
+        <p className="text-xs text-[#d29922]">Monthly goals typically have a deadline within 31 days.</p>
+      )}
       <div>
         <label className="block text-xs text-[#8b949e] mb-2">Puzzle image</label>
         <div className="grid grid-cols-3 gap-2">
