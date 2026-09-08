@@ -7,8 +7,20 @@ export function SettingsTab() {
   const [warningTime, setWarningTime] = useState('20:00')
   const [dailyQuota, setDailyQuota] = useState(() => localStorage.getItem('dailyQuota') ?? '1')
   const [confirmReset, setConfirmReset] = useState(false)
+  const [hourlyEnabled, setHourlyEnabled] = useState(() => localStorage.getItem('hourly-progress-enabled') === 'true')
+  const [hourlyStart, setHourlyStart] = useState(() => localStorage.getItem('hourly-progress-start') ?? '08:00')
+  const [hourlyEnd, setHourlyEnd] = useState(() => localStorage.getItem('hourly-progress-end') ?? '21:00')
+  const [weeklyCheckIn, setWeeklyCheckIn] = useState(() => localStorage.getItem('weekly-checkin-enabled') === 'true')
   const { subscribed, loading, error, subscribe, unsubscribe } = usePushSubscription()
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  async function updateNotificationPrefs(newOpts: { hourlyProgressEnabled?: boolean; hourlyProgressStart?: string; hourlyProgressEnd?: string; weeklyCheckInEnabled?: boolean }) {
+    if (!subscribed) return
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const dailyTime = localStorage.getItem('dailyReminderTime') ?? '09:00'
+    const warningTime = localStorage.getItem('streakWarningTime') ?? '20:00'
+    await subscribe(tz, dailyTime, warningTime, newOpts)
+  }
 
   return (
     <div className="p-4 space-y-6">
@@ -57,6 +69,74 @@ export function SettingsTab() {
             </button>
           )}
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xs uppercase tracking-wide text-[#8b949e]">Reminder Settings</h2>
+        <section className="bg-[#161b22] rounded-xl p-4 border border-[#30363d] space-y-4">
+          <h2 className="text-sm font-semibold">Reminder Settings</h2>
+
+          <div className="flex items-center justify-between">
+            <label className="text-sm text-[#e6edf3]">Hourly Progress Reminders</label>
+            <input
+              type="checkbox"
+              checked={hourlyEnabled}
+              onChange={async (e) => {
+                const val = e.target.checked
+                setHourlyEnabled(val)
+                localStorage.setItem('hourly-progress-enabled', String(val))
+                await updateNotificationPrefs({ hourlyProgressEnabled: val, hourlyProgressStart: hourlyStart, hourlyProgressEnd: hourlyEnd, weeklyCheckInEnabled: weeklyCheckIn })
+              }}
+            />
+          </div>
+
+          {hourlyEnabled && (
+            <div className="flex gap-3 items-center">
+              <div className="flex-1">
+                <label className="block text-xs text-[#8b949e] mb-1">From</label>
+                <input
+                  type="time"
+                  value={hourlyStart}
+                  className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
+                  onChange={async (e) => {
+                    const val = e.target.value
+                    setHourlyStart(val)
+                    localStorage.setItem('hourly-progress-start', val)
+                    await updateNotificationPrefs({ hourlyProgressEnabled: hourlyEnabled, hourlyProgressStart: val, hourlyProgressEnd: hourlyEnd, weeklyCheckInEnabled: weeklyCheckIn })
+                  }}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs text-[#8b949e] mb-1">To</label>
+                <input
+                  type="time"
+                  value={hourlyEnd}
+                  className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-[#e6edf3] text-sm"
+                  onChange={async (e) => {
+                    const val = e.target.value
+                    setHourlyEnd(val)
+                    localStorage.setItem('hourly-progress-end', val)
+                    await updateNotificationPrefs({ hourlyProgressEnabled: hourlyEnabled, hourlyProgressStart: hourlyStart, hourlyProgressEnd: val, weeklyCheckInEnabled: weeklyCheckIn })
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <label className="text-sm text-[#e6edf3]">Sunday Goal Check-in</label>
+            <input
+              type="checkbox"
+              checked={weeklyCheckIn}
+              onChange={async (e) => {
+                const val = e.target.checked
+                setWeeklyCheckIn(val)
+                localStorage.setItem('weekly-checkin-enabled', String(val))
+                await updateNotificationPrefs({ hourlyProgressEnabled: hourlyEnabled, hourlyProgressStart: hourlyStart, hourlyProgressEnd: hourlyEnd, weeklyCheckInEnabled: val })
+              }}
+            />
+          </div>
+        </section>
       </section>
 
       <section className="space-y-3">

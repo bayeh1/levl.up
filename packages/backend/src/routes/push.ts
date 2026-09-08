@@ -15,7 +15,11 @@ pushRoutes.post('/subscribe', async (c) => {
     keys: body.keys,
     timezone: body.timezone ?? 'UTC',
     dailyReminderTime: body.dailyReminderTime ?? '09:00',
-    streakWarningTime: body.streakWarningTime ?? '20:00'
+    streakWarningTime: body.streakWarningTime ?? '20:00',
+    hourlyProgressEnabled: body.hourlyProgressEnabled ?? false,
+    hourlyProgressStart: body.hourlyProgressStart ?? '08:00',
+    hourlyProgressEnd: body.hourlyProgressEnd ?? '21:00',
+    weeklyCheckInEnabled: body.weeklyCheckInEnabled ?? false,
   }
   await saveSubscription(sub)
   return c.json({ ok: true }, 201)

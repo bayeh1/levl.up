@@ -15,7 +15,17 @@ export function usePushSubscription() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function subscribe(timezone: string, dailyReminderTime: string, streakWarningTime: string) {
+  async function subscribe(
+    timezone: string,
+    dailyReminderTime: string,
+    streakWarningTime: string,
+    opts?: {
+      hourlyProgressEnabled?: boolean
+      hourlyProgressStart?: string
+      hourlyProgressEnd?: string
+      weeklyCheckInEnabled?: boolean
+    }
+  ) {
     if (!VAPID_PUBLIC_KEY) {
       setError('Push notifications not configured (missing VAPID key)')
       return
@@ -32,7 +42,7 @@ export function usePushSubscription() {
       const response = await fetch(`${BACKEND_URL}/push/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, timezone, dailyReminderTime, streakWarningTime })
+        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, timezone, dailyReminderTime, streakWarningTime, ...(opts ?? {}) })
       })
       if (!response.ok) throw new Error(`Server error: ${response.status}`)
       setSubscribed(true)
