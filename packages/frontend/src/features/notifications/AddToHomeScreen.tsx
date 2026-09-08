@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useDisplayMode } from './useDisplayMode'
 
 export function AddToHomeScreen() {
   const [show, setShow] = useState(false)
+  const { isStandalone, isIOS } = useDisplayMode()
 
   useEffect(() => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     const dismissed = localStorage.getItem('a2hs-dismissed')
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
     if (isIOS && !isStandalone && !dismissed) setShow(true)
   }, [])
 
